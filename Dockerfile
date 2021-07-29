@@ -83,12 +83,11 @@ RUN apt-get update && apt install -y chromium-browser
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 
-# Install and setup node and yarn / pm2
+# Install and setup node and pm2
 RUN curl -fsSL https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add -
 RUN curl -fsSL https://deb.nodesource.com/setup_15.x | bash -
 RUN apt install -y nodejs
 RUN npm install -g npm@7.0.8
-RUN npm install -g yarn
 RUN npm install -g pm2
 
 # Change user from now on
@@ -137,11 +136,10 @@ RUN chown -R node:node ${TMP_DIR} && chmod -R 777 ${TMP_DIR} && export TMP=${TMP
 RUN chown -R node:node ${CODE_DIR} && chmod -R 777 ${CODE_DIR}
 
 # Install Hilary dependencies
-RUN yarn set version berry
-RUN cd ethercalc && yarn install
+RUN cd ethercalc && npm install
 RUN ./prepare-etherpad.sh
-RUN cd 3akai-ux && yarn install
-RUN yarn install
+RUN cd 3akai-ux && npm install
+RUN npm install
 
 # Setup PM2
 RUN sed -i 's/\/opt\/current/\/home\/node\/Hilary/g' process.json
@@ -210,5 +208,5 @@ EXPOSE 80 443 2000 2001 6379 7000 7001 7199 8000 9001 9042 9160
 
 # Run the app - you may override CMD via docker run command line instruction
 ENTRYPOINT ["/bin/bash", "-c"]
-CMD ["JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64 /usr/local/cassandra/bin/cassandra > /usr/local/cassandra/cassandra.log ; service elasticsearch start ; service redis-server start ; service nginx start ; runuser -l node -c 'cd Hilary ; yarn run migrate ; ~/.local/bin/cqlsh -f init.cql ; pm2 startOrReload process.json ; pm2 logs'"]
+CMD ["JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64 /usr/local/cassandra/bin/cassandra > /usr/local/cassandra/cassandra.log ; service elasticsearch start ; service redis-server start ; service nginx start ; runuser -l node -c 'cd Hilary ; npm run migrate ; ~/.local/bin/cqlsh -f init.cql ; pm2 startOrReload process.json ; pm2 logs'"]
 
