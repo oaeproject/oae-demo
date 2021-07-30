@@ -146,27 +146,34 @@ RUN \
 
 # Create the temp directory for Hilary
 ENV TMP_DIR ${HILARY_DIR}/tmp
-RUN mkdir -p ${TMP_DIR}
-RUN mkdir -p ${TMP_DIR}/previews
-RUN mkdir -p ${TMP_DIR}/uploads
-RUN mkdir -p ${TMP_DIR}/files
-RUN chown -R node:node ${TMP_DIR} && chmod -R 777 ${TMP_DIR} && export TMP=${TMP_DIR}
-RUN chown -R node:node ${CODE_DIR} && chmod -R 777 ${CODE_DIR}
+RUN \
+        mkdir -p ${TMP_DIR} \
+        ; mkdir -p ${TMP_DIR}/previews \
+        ; mkdir -p ${TMP_DIR}/uploads \
+        ; mkdir -p ${TMP_DIR}/files \
+        ; chown -R node:node ${TMP_DIR} \
+        ; chmod -R 777 ${TMP_DIR} \
+        ; export TMP=${TMP_DIR} \
+        ; chown -R node:node ${CODE_DIR} \
+        ; chmod -R 777 ${CODE_DIR}
 
 # Install Hilary dependencies
-RUN cd ethercalc && npm install
-RUN ./prepare-etherpad.sh
-RUN cd 3akai-ux && npm install
-RUN npm install
+RUN \
+        cd ethercalc \
+        && npm install \
+        && ./prepare-etherpad.sh \
+        && cd 3akai-ux && npm install \
+        && npm install
 
 # Setup PM2
 RUN sed -i 's/\/opt\/current/\/home\/node\/Hilary/g' process.json
 
 # Install cqlsh for testing
-RUN curl https://bootstrap.pypa.io/pip/2.7/get-pip.py --output get-pip.py
-RUN python get-pip.py
-RUN ~/.local/bin/pip install cqlsh
-RUN echo "CREATE KEYSPACE IF NOT EXISTS \"etherpad\" WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1 };" >> init.cql
+RUN \
+        curl https://bootstrap.pypa.io/pip/2.7/get-pip.py --output get-pip.py \
+        ; python get-pip.py \
+        ; ~/.local/bin/pip install cqlsh \
+        ; echo "CREATE KEYSPACE IF NOT EXISTS \"etherpad\" WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1 };" >> init.cql
 
 USER root
 
