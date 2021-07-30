@@ -1,4 +1,6 @@
 # How to get OAE running with docker
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Foaeproject%2Foae-demo.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Foaeproject%2Foae-demo?ref=badge_shield)
+
 
 ## Run built image from dockerhub
 
@@ -30,3 +32,6 @@ This is intended to work on linux alone.
 ## Debug locally
 
 There's only so much debugging you can do being `node`, which is the last set user in the Dockerfile. If you need to debug the image, remove that line and build it locally, you'll be root and have all the access you need.
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Foaeproject%2Foae-demo.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Foaeproject%2Foae-demo?ref=badge_large)
