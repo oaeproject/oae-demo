@@ -161,6 +161,7 @@ RUN \
 RUN \
         cd ethercalc \
         && npm install \
+        && cd ${HILARY_DIR} \
         && ./prepare-etherpad.sh \
         && cd 3akai-ux && npm install \
         && npm install
@@ -179,10 +180,9 @@ USER root
 
 # Set up nginx
 RUN \
-        cd ${HILARY_DIR} && \
-        openssl req -x509 -nodes -days 3650 -subj "/C=PE/ST=Lima/L=Lima/O=Acme Inc. /OU=IT Department/CN=acme.com" -newkey rsa:2048 -keyout ${UI_DIR}/nginx/nginx-selfsigned.key -out ${UI_DIR}/nginx/nginx-selfsigned.crt \
-        cd ${HILARY_DIR} && \
-        openssl dhparam -out ${UI_DIR}/nginx/dhparam.pem 2048 \
+        cd ${HILARY_DIR} \
+        && openssl req -x509 -nodes -days 3650 -subj "/C=PE/ST=Lima/L=Lima/O=Acme Inc. /OU=IT Department/CN=acme.com" -newkey rsa:2048 -keyout ${UI_DIR}/nginx/nginx-selfsigned.key -out ${UI_DIR}/nginx/nginx-selfsigned.crt \
+        && openssl dhparam -out ${UI_DIR}/nginx/dhparam.pem 2048 \
         && sed -i 's/192\.168\.3\.148/localhost/g'                                 ${UI_DIR}/nginx/nginx.docker.conf \
         && sed -i 's/oae-etherpad/localhost/g'                                     ${UI_DIR}/nginx/nginx.docker.conf \
         && sed -i 's/oae-ethercalc/localhost/g'                                    ${UI_DIR}/nginx/nginx.docker.conf \
