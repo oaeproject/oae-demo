@@ -2,8 +2,8 @@ FROM ubuntu:20.04
 ENV DEBIAN_FRONTEND="noninteractive" TZ="Europe/London"
 
 RUN chsh -s /bin/bash
-RUN apt-get update ; apt-get install -y apt-transport-https ; apt -y upgrade
-RUN apt install -y curl \
+RUN apt-get update ; apt-get install -y apt-transport-https ; apt-get -y upgrade
+RUN apt-get install -y curl \
         wget \
         git \
         vim \
@@ -57,10 +57,10 @@ RUN apt install -y curl \
         libappindicator1
 
 # Install OAE supporting software
-RUN apt install -y redis-server
-RUN apt install -y nginx
-RUN apt install -y openjdk-8-jre-headless
-RUN apt install -y libreoffice
+RUN apt-get install -y redis-server
+RUN apt-get install -y nginx
+RUN apt-get install -y openjdk-8-jre-headless
+RUN apt-get install -y libreoffice
 RUN wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.9.0-amd64.deb && dpkg -i elasticsearch-7.9.0-amd64.deb
 RUN printf "\nnetwork.host: 127.0.0.1" >> /etc/elasticsearch/elasticsearch.yml
 
@@ -77,7 +77,7 @@ RUN adduser --group node ; adduser --shell /bin/bash --gecos "" --ingroup node -
 
 # Install chromium (unsafe PPA)
 RUN add-apt-repository ppa:saiarcot895/chromium-beta
-RUN apt-get update && apt install -y chromium-browser
+RUN apt-get update && apt-get install -y chromium-browser
 
 # Tell Puppeteer to skip installing Chrome. We'll be using the installed package.
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
@@ -86,7 +86,7 @@ ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 # Install and setup node and pm2
 RUN curl -fsSL https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add -
 RUN curl -fsSL https://deb.nodesource.com/setup_15.x | bash -
-RUN apt install -y nodejs
+RUN apt-get install -y nodejs
 RUN npm install -g npm@7.0.8
 RUN npm install -g pm2
 
