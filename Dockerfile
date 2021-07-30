@@ -2,9 +2,10 @@ FROM ubuntu:20.04
 ENV DEBIAN_FRONTEND="noninteractive" TZ="Europe/London"
 
 RUN chsh -s /bin/bash
-RUN apt-get update ; apt-get install -y apt-transport-https ; apt-get -y upgrade
-RUN apt-get install -y curl \
-        wget \
+RUN apt-get update ; apt-get install -y --no-install-recommends apt-transport-https ; apt-get -y upgrade
+RUN apt-get install -y --no-install-recommends curl \
+        gcc \
+        g++ \
         git \
         vim \
         gnupg \
@@ -54,18 +55,21 @@ RUN apt-get install -y curl \
         libgdk-pixbuf2.0-0 \
         libxrender1 \
         libxtst6 \
-        libappindicator1
+        libappindicator1 \
+        && apt-get clean \
+        && rm -rf /var/lib/apt/lists/*
 
 # Install OAE supporting software
-RUN apt-get install -y redis-server
-RUN apt-get install -y nginx
-RUN apt-get install -y openjdk-8-jre-headless
-RUN apt-get install -y libreoffice
-RUN wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.9.0-amd64.deb && dpkg -i elasticsearch-7.9.0-amd64.deb
+RUN apt-get install -y --no-install-recommends redis-server \
+        nginx \
+        openjdk-8-jre-headless \
+        libreoffice
+
+RUN curl https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.9.0-amd64.deb --output elasticsearch-7.9.0-amd64.deb && dpkg -i elasticsearch-7.9.0-amd64.deb
 RUN printf "\nnetwork.host: 127.0.0.1" >> /etc/elasticsearch/elasticsearch.yml
 
 # Install and set up Cassandra
-RUN wget https://downloads.apache.org/cassandra/2.1.22/apache-cassandra-2.1.22-bin.tar.gz
+RUN curl https://downloads.apache.org/cassandra/2.1.22/apache-cassandra-2.1.22-bin.tar.gz --output apache-cassandra-2.1.22-bin.tar.gz
 RUN tar -xzvf apache-cassandra-2.1.22-bin.tar.gz
 RUN mv apache-cassandra-2.1.22 /usr/local/cassandra
 RUN adduser --group cassandra ; adduser --shell /bin/bash --gecos "" --ingroup cassandra --disabled-password cassandra
