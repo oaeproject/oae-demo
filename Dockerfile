@@ -180,6 +180,8 @@ RUN cp ${UI_DIR}/nginx/nginx-selfsigned.key     /etc/nginx/
 RUN cp ${UI_DIR}/nginx/nginx-selfsigned.crt     /etc/nginx/
 RUN cp ${UI_DIR}/nginx/dhparam.pem              /etc/nginx/
 
+USER node
+
 # Set up environment variables Hilary needs to start
 RUN echo "export RECAPTCHA_KEY=yada yada" >> /home/node/.profile
 RUN echo "export TWITTER_KEY=yada yada" >> /home/node/.profile
