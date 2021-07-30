@@ -1,3 +1,6 @@
+[![CodeFactor](https://www.codefactor.io/repository/github/oaeproject/oae-demo/badge/master)](https://www.codefactor.io/repository/github/oaeproject/oae-demo/overview/master)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Foaeproject%2Foae-demo.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Foaeproject%2Foae-demo?ref=badge_shield)
+
 # How to get OAE running with docker
 
 ## Run built image from dockerhub
@@ -29,4 +32,4 @@ This is intended to work on linux alone.
 
 ## Debug locally
 
-There's only so much debugging you can do being `node`, which is the last set user in the Dockerfile. If you need to debug the image, remove that line and build it locally, you'll be root and have all the access you need.
+There's only so much debugging you can do being `node`, which is the last set user in the Dockerfile. If you need to debug the image, remove that line and build it locally, you'll be `root` and have all the access you need.
