@@ -100,12 +100,11 @@ ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 # Install and setup node and pm2
 RUN \
         curl -fsSL https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add - \
-        && curl -fsSL https://deb.nodesource.com/setup_15.x | bash - \
+        && curl -fsSL https://deb.nodesource.com/setup_16.x | bash - \
         && apt-get install -y --no-install-recommends nodejs \
         && apt-get clean \
         && rm -rf /var/lib/apt/lists/* \
-        && npm install -g npm@7.0.8 \
-        && npm install -g pm2
+        && npm install -g npm@7.0.8
 
 # Change user from now on
 USER node
@@ -159,11 +158,17 @@ RUN \
 
 # Install Hilary dependencies
 RUN \
+        # Install ethercal deps \
         cd ethercalc \
         && npm install \
+        # Install etherpad deps \
         && cd ${HILARY_DIR} \
         && ./prepare-etherpad.sh \
-        && cd 3akai-ux && npm install \
+        # Install 3akai-ux deps \
+        && cd 3akai-ux \
+        && npm install \
+        # Install Hilary deps \
+        && cd ${HILARY_DIR} \
         && npm install
 
 # Setup PM2
@@ -198,8 +203,6 @@ RUN \
         && cp ${UI_DIR}/nginx/nginx-selfsigned.crt     /etc/nginx/ \
         && cp ${UI_DIR}/nginx/dhparam.pem              /etc/nginx/
 
-USER node
-
 # Set up environment variables Hilary needs to start
 RUN \
         echo "export RECAPTCHA_KEY=yada yada"                   >> /home/node/.profile; \
@@ -229,5 +232,4 @@ EXPOSE 80 443 2000 2001 6379 7000 7001 7199 8000 9001 9042 9160
 
 # Run the app - you may override CMD via docker run command line instruction
 ENTRYPOINT ["/bin/bash", "-c"]
-CMD ["JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64 /usr/local/cassandra/bin/cassandra > /usr/local/cassandra/cassandra.log ; service elasticsearch start ; service redis-server start ; service nginx start ; runuser -l node -c 'cd Hilary ; npm run migrate ; ~/.local/bin/cqlsh -f init.cql ; pm2 startOrReload process.json ; pm2 logs'"]
-
+CMD ["JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64 /usr/local/cassandra/bin/cassandra > /usr/local/cassandra/cassandra.log ; service elasticsearch start ; service redis-server start ; service nginx start ; runuser -l node -c 'cd Hilary ; npm run migrate ; ~/.local/bin/cqlsh -f init.cql ; npx pm2 startOrReload process.json ; npx pm2 logs'"]
