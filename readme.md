@@ -32,7 +32,12 @@ This is intended to work on linux alone.
 
 ## Debug locally
 
-There's only so much debugging you can do being `node`, which is the last set user in the Dockerfile. If you need to debug the image, remove that line and build it locally, you'll be `root` and have all the access you need.
+After building the image locally, try running the container with `bin/bash` like this:
+
+```
+docker run --rm -it -P --network host --name=oae oae-demo:latest /bin/bash # you'll be root
+# if you need to run something as another user, try the `runuser` command like this: runuser -l node -c 'ls -la'
+````
 
 ## License
 
