@@ -127,6 +127,7 @@ WORKDIR ${HILARY_DIR}
 RUN git submodule sync ; git submodule update --init
 
 # Costumise Hilary configuration
+WORKDIR ${HILARY_DIR}
 RUN \
         printf "\nconfig.cassandra.hosts = ['localhost'];"                                >> config.js ;\
         printf "\nconfig.cassandra.timeout = 9000;"                                       >> config.js ;\
@@ -140,14 +141,18 @@ RUN \
         printf "\nconfig.previews.screenShotting.binary = '/usr/bin/chromium-browser';"   >> config.js ;\
         printf "\nconfig.previews.screenShotting.sandbox = '--no-sandbox';"               >> config.js
 
+# Set up Etherpad
+WORKDIR ${HILARY_DIR}
 RUN \
-        # Set up Etherpad
         sed -i 's/oae-cassandra/localhost/g'       ep-settings.json \
         && sed -i 's/oae-redis/localhost/g'        ep-settings.json \
         && cp ep-settings.json                     etherpad/settings.json \
         && cp ep-package.json                      etherpad/src/package.json \
-        # Set up Ethercalc
-        && cp ec-package.json                      ethercalc/package.json
+        && cp ep-root-package.json                 etherpad/package.json
+
+# Set up Ethercalc
+WORKDIR ${HILARY_DIR}
+RUN cp ec-package.json ethercalc/package.json
 
 # Create the temp directory for Hilary
 ENV TMP_DIR ${HILARY_DIR}/tmp
