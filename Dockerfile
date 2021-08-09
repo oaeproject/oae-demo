@@ -129,17 +129,19 @@ RUN git submodule sync ; git submodule update --init
 # Costumise Hilary configuration
 WORKDIR ${HILARY_DIR}
 RUN \
-        printf "\nconfig.cassandra.hosts = ['localhost'];"                                >> config.js ;\
-        printf "\nconfig.cassandra.timeout = 9000;"                                       >> config.js ;\
-        printf "\nconfig.redis.host = 'localhost';"                                       >> config.js ;\
-        printf "\nconfig.search.nodes = ['http://localhost:9200'];"                       >> config.js ;\
-        printf "\nconfig.mq.host = 'localhost';"                                          >> config.js ;\
-        printf "\nconfig.previews.enabled = true;"                                        >> config.js ;\
-        printf "\nconfig.email.debug = false;"                                            >> config.js ;\
-        printf "\nconfig.email.transport = 'sendmail';"                                   >> config.js ;\
-        printf "\nconfig.previews.office.binary = '/usr/bin/soffice';"                    >> config.js ;\
-        printf "\nconfig.previews.screenShotting.binary = '/usr/bin/chromium-browser';"   >> config.js ;\
-        printf "\nconfig.previews.screenShotting.sandbox = '--no-sandbox';"               >> config.js
+        { \
+        printf "\nconfig.cassandra.hosts = ['localhost'];";                                \
+        printf "\nconfig.cassandra.timeout = 9000;";                                       \
+        printf "\nconfig.redis.host = 'localhost';";                                       \
+        printf "\nconfig.search.nodes = ['http://localhost:9200'];";                       \
+        printf "\nconfig.mq.host = 'localhost';";                                          \
+        printf "\nconfig.previews.enabled = true;";                                        \
+        printf "\nconfig.email.debug = false;";                                            \
+        printf "\nconfig.email.transport = 'sendmail';";                                   \
+        printf "\nconfig.previews.office.binary = '/usr/bin/soffice';";                    \
+        printf "\nconfig.previews.screenShotting.binary = '/usr/bin/chromium-browser';";   \
+        printf "\nconfig.previews.screenShotting.sandbox = '--no-sandbox';";               \
+        } >> config.js
 
 # Set up Etherpad
 WORKDIR ${HILARY_DIR}
@@ -217,16 +219,18 @@ RUN \
 
 # Set up environment variables Hilary needs to start
 RUN \
-        echo "export RECAPTCHA_KEY=yada yada"                   >> /home/node/.profile; \
-        echo "export TWITTER_KEY=yada yada"                     >> /home/node/.profile; \
-        echo "export TWITTER_SECRET=yada yada"                  >> /home/node/.profile; \
-        echo "export FACEBOOK_APP_ID=yada yada"                 >> /home/node/.profile; \
-        echo "export FACEBOOK_APP_SECRET=yada yada"             >> /home/node/.profile; \
-        echo "export GOOGLE_CLIENT_ID=yada yada"                >> /home/node/.profile; \
-        echo "export GOOGLE_CLIENT_SECRET=yada yada"            >> /home/node/.profile; \
-        echo "export ETHEREAL_USER=yada yada"                   >> /home/node/.profile; \
-        echo "export ETHEREAL_PASS=yada yada"                   >> /home/node/.profile; \
-        echo "export TMP=/home/node/Hilary/tmp"                 >> /home/node/.profile;
+        { \
+        echo export RECAPTCHA_KEY=yada yada; \
+        echo export TWITTER_KEY=yada yada; \
+        echo export TWITTER_SECRET=yada yada; \
+        echo export FACEBOOK_APP_ID=yada yada; \
+        echo export FACEBOOK_APP_SECRET=yada yada; \
+        echo export GOOGLE_CLIENT_ID=yada yada; \
+        echo export GOOGLE_CLIENT_SECRET=yada yada; \
+        echo export ETHEREAL_USER=yada yada; \
+        echo export ETHEREAL_PASS=yada yada; \
+        echo export TMP=/home/node/Hilary/tmp; \
+        } >> /home/node/.profile;
 
 # 80:   Nginx HTTP
 # 443:  Nginx HTTPS
