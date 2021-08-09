@@ -6,7 +6,7 @@
 ## Run built image from dockerhub
 
 ```bash
-docker run --rm -it -P --network host --name=oae oaeproject/oae-demo:latest
+docker run --rm -it -P --network host --name=oae ghcr.io/oaeproject/oae-demo:master
 ```
 
 You'll still need to set up the dns entries, as follows:
