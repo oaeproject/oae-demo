@@ -82,7 +82,7 @@ RUN \
         && usermod -aG cassandra cassandra \
         && chown root:cassandra -R /usr/local/cassandra/ \
         && chmod g+w -R /usr/local/cassandra/ \
-        && echo "cassandra_parms=\"$cassandra_parms -Dcassandra.logdir=$CASSANDRA_HOME/logs\"" >> /usr/local/cassandra/bin/cassandra \
+        && echo "cassandra_parms=\"-Dcassandra.logdir=$CASSANDRA_HOME/logs\"" >> /usr/local/cassandra/bin/cassandra \
         && adduser --group node ; adduser --shell /bin/bash --gecos "" --ingroup node --disabled-password node
 
 # Install chromium (unsafe PPA)
@@ -98,6 +98,7 @@ ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 
 # Install and setup node and pm2
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN \
         curl -fsSL https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add - \
         && curl -fsSL https://deb.nodesource.com/setup_16.x | bash - \
@@ -115,12 +116,18 @@ WORKDIR ${CODE_DIR}
 
 # Clone and set up Hilary
 RUN git clone https://github.com/oaeproject/Hilary.git
+
+# Set up paths as environment variables
 ENV HILARY_DIR ${CODE_DIR}/Hilary
 ENV UI_DIR ${HILARY_DIR}/3akai-ux
+ENV ETHERCALC_DIR ${HILARY_DIR}/ethercalc
+
+# Update submodules
 WORKDIR ${HILARY_DIR}
 RUN git submodule sync ; git submodule update --init
 
 # Costumise Hilary configuration
+WORKDIR ${HILARY_DIR}
 RUN \
         printf "\nconfig.cassandra.hosts = ['localhost'];"                                >> config.js ;\
         printf "\nconfig.cassandra.timeout = 9000;"                                       >> config.js ;\
@@ -134,14 +141,18 @@ RUN \
         printf "\nconfig.previews.screenShotting.binary = '/usr/bin/chromium-browser';"   >> config.js ;\
         printf "\nconfig.previews.screenShotting.sandbox = '--no-sandbox';"               >> config.js
 
+# Set up Etherpad
+WORKDIR ${HILARY_DIR}
 RUN \
-        # Set up Etherpad
         sed -i 's/oae-cassandra/localhost/g'       ep-settings.json \
         && sed -i 's/oae-redis/localhost/g'        ep-settings.json \
         && cp ep-settings.json                     etherpad/settings.json \
         && cp ep-package.json                      etherpad/src/package.json \
-        # Set up Ethercalc
-        && cp ec-package.json                      ethercalc/package.json
+        && cp ep-root-package.json                 etherpad/package.json
+
+# Set up Ethercalc
+WORKDIR ${HILARY_DIR}
+RUN cp ec-package.json ethercalc/package.json
 
 # Create the temp directory for Hilary
 ENV TMP_DIR ${HILARY_DIR}/tmp
@@ -156,20 +167,21 @@ RUN \
         ; chown -R node:node ${CODE_DIR} \
         ; chmod -R 777 ${CODE_DIR}
 
-# Install Hilary dependencies
-RUN \
-        # Install ethercal deps \
-        cd ethercalc \
-        && npm install \
-        # Install etherpad deps \
-        && cd ${HILARY_DIR} \
-        && ./prepare-etherpad.sh \
-        # Install 3akai-ux deps \
-        && cd 3akai-ux \
-        && npm install \
-        # Install Hilary deps \
-        && cd ${HILARY_DIR} \
-        && npm install
+# Install ethercal deps
+WORKDIR ${ETHERCALC_DIR}
+RUN npm install
+
+# Install etherpad deps
+WORKDIR ${HILARY_DIR}
+RUN ./prepare-etherpad.sh
+
+# Install 3akai-ux deps
+WORKDIR ${UI_DIR}
+RUN npm install
+
+# Install Hilary deps
+WORKDIR ${HILARY_DIR}
+RUN npm install
 
 # Setup PM2
 RUN sed -i 's/\/opt\/current/\/home\/node\/Hilary/g' process.json
@@ -184,9 +196,9 @@ RUN \
 USER root
 
 # Set up nginx
+WORKDIR ${HILARY_DIR}
 RUN \
-        cd ${HILARY_DIR} \
-        && openssl req -x509 -nodes -days 3650 -subj "/C=PE/ST=Lima/L=Lima/O=Acme Inc. /OU=IT Department/CN=acme.com" -newkey rsa:2048 -keyout ${UI_DIR}/nginx/nginx-selfsigned.key -out ${UI_DIR}/nginx/nginx-selfsigned.crt \
+        openssl req -x509 -nodes -days 3650 -subj "/C=PE/ST=Lima/L=Lima/O=Acme Inc. /OU=IT Department/CN=acme.com" -newkey rsa:2048 -keyout ${UI_DIR}/nginx/nginx-selfsigned.key -out ${UI_DIR}/nginx/nginx-selfsigned.crt \
         && openssl dhparam -out ${UI_DIR}/nginx/dhparam.pem 2048 \
         && sed -i 's/host.docker.internal/localhost/g'                             ${UI_DIR}/nginx/nginx.docker.conf \
         && sed -i 's/oae-etherpad/localhost/g'                                     ${UI_DIR}/nginx/nginx.docker.conf \
